@@ -1,0 +1,21 @@
+routes:
+  # id是路由的唯一值，取请求网关url后的第一段uri 例: http://localhost:8888/server01/test  匹配id为server01的路由规则
+  - id: server01
+    # 负载均衡模式目前支持 polling（轮询） random（随机）
+    loadbalance: polling
+    # urls 为目标地址集群
+    urls:
+      - "http://localhost:8808"
+      - "http://localhost:8809"
+      - "http://localhost:8810"
+      - "http://localhost:8811"
+    filters:
+      - cn.geekshell.gateway.filter.Server01Filter
+      - cn.geekshell.gateway.filter.Server02Filter
+
+  - id: server02
+    urls:
+      - "http://localhost:8815"
+    loadbalance: random
+    filters:
+      - cn.geekshell.gateway.filter
