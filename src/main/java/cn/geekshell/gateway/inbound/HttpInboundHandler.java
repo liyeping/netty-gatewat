@@ -1,5 +1,6 @@
 package cn.geekshell.gateway.inbound;
 
+import cn.geekshell.gateway.outbound.httpclient.HttpClient;
 import cn.geekshell.gateway.outbound.netty.NettyHttpClient;
 import cn.geekshell.gateway.router.RoutingTable;
 import io.netty.buffer.Unpooled;
@@ -22,11 +23,13 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpInboundHandler.class);
     private NettyHttpClient nettyClient;
-    
+    private HttpClient httpClient;
+
     public HttpInboundHandler() {
         nettyClient = new NettyHttpClient();
+        httpClient = new HttpClient();
     }
-    
+
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
@@ -44,10 +47,11 @@ public class HttpInboundHandler extends ChannelInboundHandlerAdapter {
             //处理filter
             List<String> filters = RoutingTable.getFilter(fullRequest.getUri());
             handleFilters(filters,fullRequest,ctx);
-            
+
             if(Objects.isNull(address)){
                 handleException(ctx,"路由配置不匹配，请检查请求连接与路由配置");
             }else {
+//                httpClient.handle(address,fullRequest,ctx);
                 nettyClient.get(address,fullRequest,ctx);
             }
         } catch(Exception e) {
